@@ -43,12 +43,12 @@ while true; do
 		echo "Name      : "$DATA_NAME
 		echo "File      : "$DATA_FILE
 		echo "PBF URL   : "$DATA_URL
-		echo "Update URL: " $DATA_UPDATE_URL
+		echo "Update URL: "$DATA_UPDATE_URL
 
 		echo "---"
 
 		if [ $PURGE ]; then
-			echo "Purgin data files"
+			echo "Purging data files"
 			rm -f $DATA_DIR/$DATA_FILE.osm.pbf $DATA_CHANGES $EXPIRED_TILES_LIST
 			echo "Purging tiles"
 			rm -rf $TILES_DIR/*
@@ -56,9 +56,8 @@ while true; do
 			sudo -u postgres psql -d gis --command "DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public; COMMENT ON SCHEMA public IS 'standard public schema';"
 			echo "Setup PostGIS on the PostgreSQL database"
 			sudo -u postgres psql -d gis --command 'CREATE EXTENSION postgis;ALTER TABLE geometry_columns OWNER TO "www-data";ALTER TABLE spatial_ref_sys OWNER TO "www-data";'
+			echo "---"
 		fi
-
-		echo "---"
 
 		if [ ! -e "$DATA_DIR/$DATA_FILE.osm.pbf" ]; then
 			echo "OSM data file not found, starting download..."
@@ -75,20 +74,14 @@ while true; do
 			echo "Updating $DATA_NAME file"
 			#osmupdate --base-url=$DATA_UPDATE_URL $DATA_DIR/$DATA_FILE.osm.pbf $DATA_DIR/$DATA_FILE-new.osm.pbf
 			wget -O $DATA_DIR/$DATA_FILE.osm.pbf $DATA_URL
-
-			# REMOVE OLD DATA FILE
-			#rm $DATA_DIR/$DATA_FILE.osm.pbf
-			# RENAME NEW DATA FILE
-			#mv $DATA_DIR/$DATA_FILE-new.osm.pbf $DATA_DIR/$DATA_FILE.osm.pbf
 			
 			echo "Importing changes to database"
-			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS -e15 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
+			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS -e0 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
 		fi
 
 		echo "Deleting expired tiles"
 		cat $EXPIRED_TILES_LIST | render_expired --delete-from=0
 #		rm $EXPIRED_TILES_LIST
-#		rm -Rf /var/lib/mod_tile/
 
 		i=$((i+1))
 	else
