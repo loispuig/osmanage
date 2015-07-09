@@ -63,11 +63,11 @@ while true; do
             sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS $BASE_DIR/$DATAFILE.osm.pbf
         else
             echo "File already exists, starting update..."
+            echo "Downloading changeset"
+            osmupdate --base-url=$DATAUPDATEURL $BASE_DIR/$DATAFILE.osm.pbf $BASE_DIR/$DATAFILE-changes.osc
+            echo "Updating $DATANAME file"
+            osmupdate --base-url=$DATAUPDATEURL $BASE_DIR/$DATAFILE.osm.pbf $BASE_DIR/$DATAFILE-new.osm.pbf
         fi
-
-#        echo "Updating $DATANAME file"
-#        osmupdate --base-url=$DATAUPDATEURL $BASE_DIR/$DATAFILE.osm.pbf $BASE_DIR/$DATAFILE-new.osm.pbf
-
 
 #        echo "Recording $DATANAME to database"
 #        sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS $DATACHANGES
