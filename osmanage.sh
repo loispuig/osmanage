@@ -80,7 +80,7 @@ while true; do
 		fi
 
 		echo "Deleting expired tiles"
-		cat $EXPIRED_TILES_LIST | render_expired --delete-from=0
+		cat $EXPIRED_TILES_LIST | render_expired --delete-from=2
 #		rm $EXPIRED_TILES_LIST
 
 		i=$((i+1))
