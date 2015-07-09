@@ -69,10 +69,13 @@ while true; do
             osmupdate --base-url=$DATAUPDATEURL $BASE_DIR/$DATAFILE.osm.pbf $DATACHANGES
             echo "Updating $DATANAME file"
             osmupdate --base-url=$DATAUPDATEURL $BASE_DIR/$DATAFILE.osm.pbf $BASE_DIR/$DATAFILE-new.osm.pbf
+            rm $BASE_DIR/$DATAFILE.osm.pbf
+            mv $BASE_DIR/$DATAFILE-new.osm.pbf $BASE_DIR/$DATAFILE.osm.pbf
             echo "Importing changes to database"
             sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS $DATACHANGES
             echo "Deleting old tiles"
             rm -Rf $TILES_DIR/*
+
         fi
 
 #        echo "Recording $DATANAME to database"
