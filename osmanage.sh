@@ -4,88 +4,74 @@ set -e
 clear
 
 #*************************************************************************
-#*************************************************************************
-JQ_BIN=/usr/bin/jq
-OSMOSIS_BIN=osmosis
+
 OSM2PGSQL_BIN=/usr/local/share/osm2pgsql/osm2pgsql
-OSM2PGSQL_OPTIONS="--slim -d gis -C 3000 --number-processes 4"
-#OSM2PGSQL_OPTIONS="--flat-nodes /path/to/flatnodes --hstore"
+OSM2PGSQL_OPTIONS="-—cache 3000 --database gis —-slim --number-processes 4"
+
+JSON=osmdata.json
 
 TILES_DIR=/var/lib/mod_tile/default
-PBF=/usr/local/share/maps/planet/aquitaine.osm.pbf
 
+DATA_DIR=/usr/local/share/maps/planet
 
-BASE_DIR=/usr/local/share/maps/planet
-LOG_DIR=/var/log/osmupdate/
-
-CHANGE_FILE=$BASE_DIR/changes.osc.gz
-
-UPDATELOG=$LOG_DIR/osmupdate.log
-OSM2PGSQLLOG=$LOG_DIR/osm2pgsql.log
-
-#********
-
-#mkdir $WORKOSM_DIR
-
- #   $OSMOSIS_BIN --read-replication-interval-init workingDirectory=$WORKOSM_DIR 1>&2 2> "$OSMOSISLOG"
- #   wget "http://osm.personalwerk.de/replicate-sequences/?"$1"T00:00:00Z" -O $WORKOSM_DIR/state.txt
-
-#osmupdate --base-url=download.geofabrik.de/europe/france/aquitaine-updates aquitaine-latest.osm.pbf aquitaine-latest.$
-
-JSONFILE=osmdata.json
+#*************************************************************************
 
 i="0"
 while true; do
-    DATANAME=`$JQ_BIN -r ".[$i].name" $JSONFILE`
-    DATAPBFURL=`$JQ_BIN -r ".[$i].pbf" $JSONFILE`
-    DATAUPDATEURL=`$JQ_BIN -r ".[$i].changes" $JSONFILE`
+	DATA_NAME=`jq -r ".[$i].name" $JSON`
+	DATA_URL=`jq -r ".[$i].pbf" $JSON`
+	DATA_UPDATE_URL=`jq -r ".[$i].changes" $JSON`
 
-    if [ $DATANAME != "null" ]; then
+	if [ $DATA_NAME != "null" ]; then
 
-        # UPDATE
-#        osmupdate --base-url=$DATAUPDATEURL 
+		# UPDATE
+#        osmupdate --base-url=$DATA_UPDATE_URL 
 
-        DATAFILE=`basename $DATAPBFURL | cut -d'.' -f1`
-        DATACHANGES=$BASE_DIR/$DATAFILE-changes.osc
+		DATA_FILE=`basename $DATA_URL | cut -d'.' -f1`
+		DATA_CHANGES=$DATA_DIR/$DATA_FILE-changes.osc
+		EXPIRED_TILES_LIST=$TILES_DIR/../$DATA_FILE-expired-tiles.list
 
-        echo ""
-        echo "---"
+		echo ""
+		echo "---"
 
-        echo "Name: "$DATANAME
-        echo "File: "$DATAFILE
-        echo "PBF URL: "$DATAPBFURL
-        echo "Update URL: " $DATAUPDATEURL
+		echo "Name: "$DATA_NAME
+		echo "File: "$DATA_FILE
+		echo "PBF URL: "$DATA_URL
+		echo "Update URL: " $DATA_UPDATE_URL
 
-        echo "---"
+		echo "---"
 
-        if [ ! -e "$BASE_DIR/$DATAFILE.osm.pbf" ]; then
-            echo "File not found, starting download..."
-            wget -O $BASE_DIR/$DATAFILE.osm.pbf $DATAPBFURL
-            echo "Importing $DATANAME to database"
-            sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS $BASE_DIR/$DATAFILE.osm.pbf
-        else
-            echo "File already exists, starting update..."
-            echo "Downloading changeset"
-            osmupdate --base-url=$DATAUPDATEURL $BASE_DIR/$DATAFILE.osm.pbf $DATACHANGES
-            echo "Updating $DATANAME file"
-            osmupdate --base-url=$DATAUPDATEURL $BASE_DIR/$DATAFILE.osm.pbf $BASE_DIR/$DATAFILE-new.osm.pbf
-            rm $BASE_DIR/$DATAFILE.osm.pbf
-            mv $BASE_DIR/$DATAFILE-new.osm.pbf $BASE_DIR/$DATAFILE.osm.pbf
-            echo "Importing changes to database"
-            sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS $DATACHANGES
-            echo "Deleting old tiles"
-            rm -Rf $TILES_DIR/*
+		if [ ! -e "$DATA_DIR/$DATA_FILE.osm.pbf" ]; then
+			echo "OSM data file not found, starting download..."
+			wget -O $DATA_DIR/$DATA_FILE.osm.pbf $DATA_URL
+			
+			echo "Importing $DATA_NAME to database"
+			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS $DATA_DIR/$DATA_FILE.osm.pbf
+		else
+			echo "OSM data file found"
+			
+			echo "Downloading changes"
+			osmupdate --base-url=$DATA_UPDATE_URL $DATA_DIR/$DATA_FILE.osm.pbf $DATA_CHANGES
+			
+			echo "Updating $DATA_NAME file"
+			osmupdate --base-url=$DATA_UPDATE_URL $DATA_DIR/$DATA_FILE.osm.pbf $DATA_DIR/$DATA_FILE-new.osm.pbf
+			
+			# REMOVE OLD DATA FILE
+			rm $DATA_DIR/$DATA_FILE.osm.pbf
+			# RENAME NEW DATA FILE
+			mv $DATA_DIR/$DATA_FILE-new.osm.pbf $DATA_DIR/$DATA_FILE.osm.pbf
+			
+			echo "Importing changes to database"
+			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 0 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
+			
+			echo "Deleting expired tiles"
+			cat $EXPIRED_TILES_LIST | render_expired --delete-from=0
 
-        fi
+		fi
+		i=$((i+1))
+	else
+		break;
+	fi
 
-#        echo "Recording $DATANAME to database"
-#        sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS $DATACHANGES
-
-        i=$((i+1))
-
-    else
-        break;
-    fi
-
-    echo ""
+	echo ""
 done
