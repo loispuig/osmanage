@@ -76,7 +76,7 @@ while true; do
 			wget -O $DATA_DIR/$DATA_FILE.osm.pbf $DATA_URL
 			
 			echo "Importing changes to database"
-			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS -e0 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
+			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS -e1 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
 		fi
 
 		echo "Deleting expired tiles"
