@@ -1,0 +1,7 @@
+[
+    {
+        "name"   : "France/Aquitaine",
+        "pbf"    : "http://download.geofabrik.de/europe/france/aquitaine-latest.osm.pbf",
+        "changes": "http://download.geofabrik.de/europe/france/aquitaine-updates"
+    }
+]
