@@ -31,7 +31,7 @@ OSM2PGSQLLOG=$LOG_DIR/osm2pgsql.log
 
 #osmupdate --base-url=download.geofabrik.de/europe/france/aquitaine-updates aquitaine-latest.osm.pbf aquitaine-latest.$
 
-JSONFILE=$BASE_DIR/../sh/osmdata.json
+JSONFILE=osmdata.json
 
 i="0"
 while true; do
