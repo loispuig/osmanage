@@ -6,7 +6,7 @@ clear
 #*************************************************************************
 
 OSM2PGSQL_BIN=/usr/local/share/osm2pgsql/osm2pgsql
-OSM2PGSQL_OPTIONS="-—cache 3000 --database gis —-slim --number-processes 4"
+OSM2PGSQL_OPTIONS="--cache 3000 --database gis --slim --number-processes 4"
 
 JSON=osmdata.json
 
@@ -23,9 +23,6 @@ while true; do
 	DATA_UPDATE_URL=`jq -r ".[$i].changes" $JSON`
 
 	if [ $DATA_NAME != "null" ]; then
-
-		# UPDATE
-#        osmupdate --base-url=$DATA_UPDATE_URL 
 
 		DATA_FILE=`basename $DATA_URL | cut -d'.' -f1`
 		DATA_CHANGES=$DATA_DIR/$DATA_FILE-changes.osc
@@ -63,7 +60,6 @@ while true; do
 			
 			echo "Importing changes to database"
 			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 0 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
-			echo "sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 0 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES"
 			
 			echo "Deleting expired tiles"
 			cat $EXPIRED_TILES_LIST | render_expired --delete-from=0
