@@ -82,12 +82,13 @@ while true; do
 			#mv $DATA_DIR/$DATA_FILE-new.osm.pbf $DATA_DIR/$DATA_FILE.osm.pbf
 			
 			echo "Importing changes to database"
-			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 0 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
+			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS -e15 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
 		fi
 
 		echo "Deleting expired tiles"
 		cat $EXPIRED_TILES_LIST | render_expired --delete-from=0
-		rm $EXPIRED_TILES_LIST
+#		rm $EXPIRED_TILES_LIST
+#		rm -Rf /var/lib/mod_tile/
 
 		i=$((i+1))
 	else
