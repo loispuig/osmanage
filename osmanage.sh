@@ -48,10 +48,14 @@ while true; do
 		echo "---"
 
 		if [ $PURGE ]; then
+			echo "Purging database"
 			sudo -u postgres psql -d gis --command "DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public; COMMENT ON SCHEMA public IS 'standard public schema';"
+			echo "Purgin data files"
 			rm -f $DATA_DIR/$DATA_FILE.osm.pbf $DATA_CHANGES $EXPIRED_TILES_LIST
 			rm -rf $TILES_DIR/*
 		fi
+
+		echo "---"
 
 		if [ ! -e "$DATA_DIR/$DATA_FILE.osm.pbf" ]; then
 			echo "OSM data file not found, starting download..."
