@@ -49,7 +49,7 @@ while true; do
 
 		if [ $PURGE ]; then
 			sudo -u postgres psql -d gis --command "DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public; COMMENT ON SCHEMA public IS 'standard public schema';"
-			rm $DATA_DIR/$DATA_FILE.osm.pbf $DATA_CHANGES $EXPIRED_TILES_LIST
+			rm -f $DATA_DIR/$DATA_FILE.osm.pbf $DATA_CHANGES $EXPIRED_TILES_LIST
 			rm -rf $TILES_DIR/*
 		fi
 
