@@ -48,11 +48,14 @@ while true; do
 		echo "---"
 
 		if [ $PURGE ]; then
-			echo "Purging database"
-			sudo -u postgres psql -d gis --command "DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public; COMMENT ON SCHEMA public IS 'standard public schema';"
 			echo "Purgin data files"
 			rm -f $DATA_DIR/$DATA_FILE.osm.pbf $DATA_CHANGES $EXPIRED_TILES_LIST
+			echo "Purging tiles"
 			rm -rf $TILES_DIR/*
+			echo "Purging database"
+			sudo -u postgres psql -d gis --command "DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public; COMMENT ON SCHEMA public IS 'standard public schema';"
+			echo "Setup PostGIS on the PostgreSQL database"
+			sudo -u postgres psql -d gis --command 'CREATE EXTENSION postgis;ALTER TABLE geometry_columns OWNER TO "www-data";ALTER TABLE spatial_ref_sys OWNER TO "www-data";'
 		fi
 
 		echo "---"
