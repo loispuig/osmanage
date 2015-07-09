@@ -77,9 +77,9 @@ while true; do
 			wget -O $DATA_DIR/$DATA_FILE.osm.pbf $DATA_URL
 
 			# REMOVE OLD DATA FILE
-			rm $DATA_DIR/$DATA_FILE.osm.pbf
+			#rm $DATA_DIR/$DATA_FILE.osm.pbf
 			# RENAME NEW DATA FILE
-			mv $DATA_DIR/$DATA_FILE-new.osm.pbf $DATA_DIR/$DATA_FILE.osm.pbf
+			#mv $DATA_DIR/$DATA_FILE-new.osm.pbf $DATA_DIR/$DATA_FILE.osm.pbf
 			
 			echo "Importing changes to database"
 			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 0 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
