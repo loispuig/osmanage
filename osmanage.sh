@@ -73,8 +73,9 @@ while true; do
 			osmupdate --base-url=$DATA_UPDATE_URL $DATA_DIR/$DATA_FILE.osm.pbf $DATA_CHANGES
 			
 			echo "Updating $DATA_NAME file"
-			osmupdate --base-url=$DATA_UPDATE_URL $DATA_DIR/$DATA_FILE.osm.pbf $DATA_DIR/$DATA_FILE-new.osm.pbf
-			
+			#osmupdate --base-url=$DATA_UPDATE_URL $DATA_DIR/$DATA_FILE.osm.pbf $DATA_DIR/$DATA_FILE-new.osm.pbf
+			wget -O $DATA_DIR/$DATA_FILE.osm.pbf $DATA_URL
+
 			# REMOVE OLD DATA FILE
 			rm $DATA_DIR/$DATA_FILE.osm.pbf
 			# RENAME NEW DATA FILE
