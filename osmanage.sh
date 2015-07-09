@@ -43,7 +43,7 @@ while true; do
 			wget -O $DATA_DIR/$DATA_FILE.osm.pbf $DATA_URL
 			
 			echo "Importing $DATA_NAME to database"
-			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS $DATA_DIR/$DATA_FILE.osm.pbf
+			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 0 --expire-output $EXPIRED_TILES_LIST $DATA_DIR/$DATA_FILE.osm.pbf
 		else
 			echo "OSM data file found"
 			
@@ -60,11 +60,12 @@ while true; do
 			
 			echo "Importing changes to database"
 			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 0 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
-			
-			echo "Deleting expired tiles"
-			cat $EXPIRED_TILES_LIST | render_expired --delete-from=0
-
 		fi
+
+		echo "Deleting expired tiles"
+		cat $EXPIRED_TILES_LIST | render_expired --delete-from=0
+		rm $EXPIRED_TILES_LIST
+
 		i=$((i+1))
 	else
 		break;
