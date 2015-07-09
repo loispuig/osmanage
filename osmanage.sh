@@ -11,6 +11,7 @@ OSM2PGSQL_BIN=/usr/local/share/osm2pgsql/osm2pgsql
 OSM2PGSQL_OPTIONS="--slim -d gis -C 3000 --number-processes 4"
 #OSM2PGSQL_OPTIONS="--flat-nodes /path/to/flatnodes --hstore"
 
+TILES_DIR=/var/lib/mod_tile/default
 PBF=/usr/local/share/maps/planet/aquitaine.osm.pbf
 
 
@@ -45,6 +46,7 @@ while true; do
 #        osmupdate --base-url=$DATAUPDATEURL 
 
         DATAFILE=`basename $DATAPBFURL | cut -d'.' -f1`
+        DATACHANGES=$BASE_DIR/$DATAFILE-changes.osc
 
         echo ""
         echo "---"
@@ -64,9 +66,13 @@ while true; do
         else
             echo "File already exists, starting update..."
             echo "Downloading changeset"
-            osmupdate --base-url=$DATAUPDATEURL $BASE_DIR/$DATAFILE.osm.pbf $BASE_DIR/$DATAFILE-changes.osc
+            osmupdate --base-url=$DATAUPDATEURL $BASE_DIR/$DATAFILE.osm.pbf $DATACHANGES
             echo "Updating $DATANAME file"
             osmupdate --base-url=$DATAUPDATEURL $BASE_DIR/$DATAFILE.osm.pbf $BASE_DIR/$DATAFILE-new.osm.pbf
+            echo "Importing changes to database"
+            sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS $DATACHANGES
+            echo "Deleting old tiles"
+            rm -Rf $TILES_DIR/*
         fi
 
 #        echo "Recording $DATANAME to database"
