@@ -63,6 +63,7 @@ while true; do
 			
 			echo "Importing changes to database"
 			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 0 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
+			echo "sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 0 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES"
 			
 			echo "Deleting expired tiles"
 			cat $EXPIRED_TILES_LIST | render_expired --delete-from=0
