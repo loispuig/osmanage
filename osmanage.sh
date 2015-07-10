@@ -73,7 +73,7 @@ while true; do
 			wget -O $DATA_DIR/$DATA_FILE.osm.pbf $DATA_URL
 			
 			echo $GREEN"Importing $DATA_NAME to database"$NORMAL
-			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 2 --expire-output $EXPIRED_TILES_LIST $APPEND $DATA_DIR/$DATA_FILE.osm.pbf
+			sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 15 --expire-output $EXPIRED_TILES_LIST $APPEND $DATA_DIR/$DATA_FILE.osm.pbf
 		else
 			echo $GREEN"OSM data file found"$NORMAL
 			
@@ -85,14 +85,14 @@ while true; do
 			wget -O $DATA_DIR/$DATA_FILE.osm.pbf $DATA_URL
 			
 			echo $GREEN"Importing changes to database"$NORMAL
-			echo $GREEN"$OSM2PGSQL_OPTIONS --expire-tiles 2 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES"$NORMAL
+			echo $GREEN"$OSM2PGSQL_OPTIONS --expire-tiles 15 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES"$NORMAL
 			#sudo -u www-data $OSM2PGSQL_BIN $OSM2PGSQL_OPTIONS --expire-tiles 2 --expire-output $EXPIRED_TILES_LIST --append $DATA_CHANGES
 		fi
 
 		echo $GREEN"Deleting expired tiles"$NORMAL
-		#cat $EXPIRED_TILES_LIST | render_expired --delete-from=0
-		cat $EXPIRED_TILES_LIST
-#		rm $EXPIRED_TILES_LIST
+		cat $EXPIRED_TILES_LIST | render_expired --min-zoom=2 --delete-from=2
+		#cat $EXPIRED_TILES_LIST
+		#rm $EXPIRED_TILES_LIST
 
 		i=$((i+1))
 	else
