@@ -91,8 +91,7 @@ while true; do
 
 		echo $GREEN"Deleting expired tiles"$NORMAL
 		cat $EXPIRED_TILES_LIST | render_expired --min-zoom=2 --delete-from=2
-		#cat $EXPIRED_TILES_LIST
-		#rm $EXPIRED_TILES_LIST
+		rm $EXPIRED_TILES_LIST
 
 		i=$((i+1))
 	else

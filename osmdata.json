@@ -3,5 +3,10 @@
 		"name"   : "Europe/France/Aquitaine",
 		"pbf"    : "http://download.geofabrik.de/europe/france/aquitaine-latest.osm.pbf",
 		"changes": "http://download.geofabrik.de/europe/france/aquitaine-updates"
+	},
+	{
+		"name"   : "Europe/France/Ile-de-France",
+		"pbf"    : "http://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf",
+		"changes": "http://download.geofabrik.de/europe/france/ile-de-france-updates"
 	}
 ]
